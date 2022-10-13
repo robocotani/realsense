@@ -104,7 +104,7 @@ mask_b = cv2.resize(mask_ball_new, dsize=None, fx=0.5, fy=0.5)
 
  # 結果表示
 cv2.imwrite("ball/Frame3.jpg", img1)
-cv2.imwrite("ball/Mask3.jpg", mask_b)
+cv2.imshow("ball/Mask3.jpg", mask_b)
 
 # qキーが押されたら途中終了
 cv2.waitKey(0)
