@@ -124,8 +124,8 @@ p4.start(0)
 
 #フラグの設定
 ball_1 = False #ボール位置へ移動 デプスカメラ
-ball_2 = False #下カメラ
-cont = False #ボール微調整
+#ball_2 = False #下カメラ
+#cont = False #ボール微調整
 depth = False #距離計測
 hole = False #打球
 
