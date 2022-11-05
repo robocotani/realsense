@@ -54,7 +54,6 @@ def ball_detect(img):
         center_y = int(center[0][1])
         cv2.circle(img,(center_x,center_y),2,(0,0,255),3)
         cv2.rectangle(img, (x[0] ,y[0]), (x[0] + w[0], y[0] + h[0]), (0, 255, 0), 2)
-        cv2.putText(img,"ball",org=(x[0] + w[0] + 20, y[0] + h[0] + 20),fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=1.0,color=(0, 255, 0),thickness=2,lineType=cv2.LINE_4)
     else:
         #最大値を取得
         max_index = np.argmax(area)
@@ -73,14 +72,12 @@ def ball_detect(img):
         y=maxblob["upper_left"][1]
         w=maxblob["width"]
         h=maxblob["height"]
-        center_x = int(center["center"][0])
-        center_y = int(center["center"][1])
+        center_x = int(maxblob["center"][0])
+        center_y = int(maxblob["center"][1])
         cv2.circle(img,(center_x,center_y),2,(0,0,255),3)
         cv2.rectangle(img, (x,y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(img,"ball",org=(x + w + 20, y + h + 20),fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=1.0,color=(0, 255, 0),thickness=2,lineType=cv2.LINE_4)
-
-    return center_x,center_y,closing
-
+        
+    return center_x,center_y
 
 
 
