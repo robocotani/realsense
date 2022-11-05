@@ -212,11 +212,11 @@ try:
                 #ボール未検出
                 ball_2 = True
                 pass
-            elif center_ball_1_x < 620:                    
+            elif center_ball_1_x < 640:                    
                 left_rotation() #左回転
-            elif center_ball_1_x > 660:                    
+            elif center_ball_1_x > 640:                    
                 right_rotation() #右回転
-            elif 620 <= center_ball_1_x <= 660:
+            elif 600 <= center_ball_1_x <= 680:
                 if center_ball_1_y == None:
                     #ボール未検出
                     pass
@@ -224,22 +224,13 @@ try:
                     down() #後転
                 elif center_ball_1_y > 360:                        
                     move() #正転
-                elif 320 <= center_ball_1_y <= 380:
+                elif 320 <= center_ball_1_y <= 400:
                     #範囲に入ったら停止
                     ball_1 = False
                     flag = True
                     pass
             else:
                 pass
-
-                #if sense == True:
-                #realsenseで距離計測
-                    #dist_sense = distance(center_ball_x, center_ball_y)
-                    #パラメータ補正
-                    #距離から出した時間分だけ直進(正転)
-                    #t = format(dist_sense/0.1,'.3f')
-
-                    #move()    
     #---------------------------------------------------
 
 
@@ -251,11 +242,11 @@ try:
             if center_ball_2_x == None:
                 #ボール未検出
                 pass
-            elif center_ball_2_x < 620:
+            elif center_ball_2_x < 640:
                 left_rotation() #左回転
-            elif center_ball_2_x > 660:                   
+            elif center_ball_2_x > 640:                   
                 right_rotation() #右回転
-            elif 620 <= center_ball_2_x <= 660:
+            elif 600 <= center_ball_2_x <= 680:
                 if center_ball_2_y == None:
                     #ボール未検出
                     pass
@@ -263,7 +254,7 @@ try:
                     down() #後転
                 elif center_ball_2_y > 360:                        
                     move() #正転
-                elif 320 <= center_ball_2_y <= 380:
+                elif 320 <= center_ball_2_y <= 400:
                     #範囲に入ったら停止
                     flag = True
                     ball_1 = False
@@ -281,11 +272,11 @@ try:
             if center_flag_x == None:
                 #フラッグ未検出
                 pass
-            elif center_flag_x < 620:
+            elif center_flag_x < 640:
                 left_rotation() #左回転
-            elif center_flag_x > 660:
+            elif center_flag_x > 640:
                 right_rotation() #右回転
-            elif 620 <= center_flag_x <= 660:
+            elif 600 <= center_flag_x <= 680:
                 #停止
                 flag = False
                 cont = True
@@ -307,7 +298,7 @@ try:
                 down() #後転
             elif center_cont_x > 360:
                 move() #正転
-            elif 320 <= center_cont_x <= 380:
+            elif 320 <= center_cont_x <= 400:
                 #停止
                 cont = False
                 depth = True
