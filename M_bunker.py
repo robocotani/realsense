@@ -52,14 +52,12 @@ def bunker_detect(img):
 
     if cnt == 0: #バンカー未検出
         return None,None,None,None,None,None
-    else: #既に最大データのみ(ラベル数が1)
+    else: 
         for i in range(cnt):
             center1_x = int(center_x[i])
             center1_y = int(center_y[i])
             cv2.circle(img,(center1_x,center1_y),2,(0,0,255),3)
             cv2.rectangle(img, (x[i] ,y[i]), (x[i] + w[i], y[i] + h[i]), (0, 255, 0), 2)
-            cv2.putText(img,"bunker",org=(x[i] - 5, y[i] + h[i] + 2),fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=1.0,color=(0, 255, 0),thickness=2,lineType=cv2.LINE_4)
-    
 
-    return x,y,w,h,center_x,center_y,mask
+    return x,y,w,h,center_x,center_y
 
