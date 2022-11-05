@@ -62,7 +62,6 @@ def flag_detect(img):
         center_y = int(center[0][1])
         cv2.circle(img,(center_x,center_y),2,(0,0,255),3)
         cv2.rectangle(img, (x[0] ,y[0]), (x[0] + w[0], y[0] + h[0]), (0, 255, 0), 2)
-        cv2.putText(img,"flag",org=(x[0] + w[0] + 20, y[0] + h[0] + 20),fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=1.0,color=(0, 255, 0),thickness=2,lineType=cv2.LINE_4)
     else:
         #最大値を取得
         max_index = np.argmax(area)
@@ -85,7 +84,6 @@ def flag_detect(img):
         center_y = int(maxblob["center"][1])
         cv2.circle(img,(center_x,center_y),2,(0,0,255),3)
         cv2.rectangle(img, (x,y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(img,"flag",org=(x + w + 20, y + h + 20),fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=1.0,color=(0, 255, 0),thickness=2,lineType=cv2.LINE_4)
-
+        
     return center_x,center_y
 
