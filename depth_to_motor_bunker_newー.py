@@ -176,7 +176,7 @@ if __name__ == '__main__':
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.08), cv2.COLORMAP_JET)
 
             ret,frame2 = cap.read()
-            #cv2.imshow('frame',frame2)
+            cv2.imshow('frame',frame2)
 
             img1 = RGB_image
             img2 = frame2
@@ -218,6 +218,7 @@ if __name__ == '__main__':
                     elif 320 <= center_ball_1_y <= 380:
                         #範囲に入ったら停止
                         ball_1 = False
+                        ball_1_bunker = False
                         flag = True
                 else:
                     pass
@@ -237,7 +238,8 @@ if __name__ == '__main__':
                     bunker_y = y[0] + h[0]
                     dist_bunker_sense1 = distance(bunker_x, bunker_y)
  
-                    if dist_bunker_sense1 < 0.5:
+                    if dist_bunker_sense1 < 0.15:
+
                         bunker = True
                 elif len(x) == 2:
                     bunker1_sense_index = x.index(min(x))
@@ -256,11 +258,11 @@ if __name__ == '__main__':
                     bunker2_y = y[bunker2_sense_index] + h[bunker2_sense_index]
                     dist_bunker_sense2 = distance(bunker2_x, bunker2_y)
 
-                    if dist_bunker_sense1 < 0.5:
+                    if dist_bunker_sense1 < 0.15:
                         bunker_choice = 1
                         bunker = True
                         ball_1 = False
-                    if dist_bunker_sense2 < 0.5:
+                    if dist_bunker_sense2 < 0.15:
                         #バンカーとの距離が50cm以内
                         bunker_choice = 2
                         bunker = True
@@ -270,11 +272,6 @@ if __name__ == '__main__':
         #--------------------------------------------------
 
 
-
-                
-            
-
-
         #バンカー避け---------------------------------------
             if bunker == True:
                 if bunker_choice == 1:
@@ -282,24 +279,16 @@ if __name__ == '__main__':
                     time.sleep(1)
                     move()
                     time.sleep(1)
-                    center_flag_x,center_flag_y = M_flag.flag_detect(img1)
+                if bunker_choice == 2:
+                    left_rotation()
+                    time.sleep(1)
+                    move()
+                    time.sleep(1)
 
-                    if center_flag_x == None:
-                        #フラッグ未検出
-                        pass
-                    elif center_flag_x < 620:
-                        left_rotation() #左回転
-                    elif center_flag_x > 660:
-                        right_rotation() #右回転
-                    elif 620 <= center_flag_x <= 660:
-                        ball_1 = True
-                        pass
-                    else:
-                        pass
-                
+                ball_1 = True
+                ball_1_bunker = True
 
-
-                pass
+        #--------------------------------------------------
 
 
 
