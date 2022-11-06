@@ -150,7 +150,7 @@ if __name__ == '__main__':
     #------------------------
 
     #フラグの設定
-    ball_1 = True #ボール位置へ移動 デプスカメラ
+    ball_1 = False #ボール位置へ移動 デプスカメラ
     ball_1_bunker = False #ボール位置へ移動　デプスカメラ　バンカーあり
     ball_2 = False #下カメラ
     sense = False #realsense距離計測
@@ -246,7 +246,7 @@ if __name__ == '__main__':
                     dist_bunker_sense1 = distance(bunker_x, bunker_y)
  
                     if dist_bunker_sense1 < 0.15:
-
+                        bunker_choice = 1
                         bunker = True
                 elif len(x) == 2:
                     bunker1_sense_index = x.index(min(x))
