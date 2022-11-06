@@ -125,12 +125,14 @@ if __name__ == '__main__':
     PIN2 = 22
     PIN3 = 27
     PIN4 = 18
+    #sw_PIN = 15
 
 
     GPIO.setup(PIN1, GPIO.OUT)
     GPIO.setup(PIN2, GPIO.OUT)
     GPIO.setup(PIN3, GPIO.OUT)
     GPIO.setup(PIN4, GPIO.OUT)
+    #GPIO.setup(sw_PIN, GPIO.IN)
 
     #左
     p1 = GPIO.PWM(PIN1, 50) #50Hz
@@ -182,6 +184,11 @@ if __name__ == '__main__':
             img2 = frame2
 
             #ボタンが押されたらスタート
+            #sw = GPIO.input(sw_PIN) 
+            #if sw == 0:#スイッチが押されたらスタート
+                #ball_1 = True
+                #ball_1_bunker = True
+
             c = cv2.waitKey(1)
             if c == ord('s'):
                 ball_1 = True
