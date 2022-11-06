@@ -31,64 +31,64 @@ def distance(center_x,center_y):
     return dist_mean
 
 
-def left_rotation():
-    #左回転(左が後転、右が正転)
+def right_rotation():
+    #右回転(左が正転、右が後転)
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    time.sleep(0.5)
+    time.sleep(0.05)
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
 
 
-def right_rotation():
-    #右回転(左が正転、右が後転)
+def left_rotation():
+    #左回転(左が後転、右が正転)
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.5)
+    time.sleep(0.05)
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
 
 
 def move():
-    #正転
+    #
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    time.sleep(0.5)
+    time.sleep(0.1)
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
     
 
 def down():
-    #後転
+    #
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.5)
+    time.sleep(0.1)
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
     
 
 
@@ -155,7 +155,8 @@ try:
     while True:
         # フレーム待ち
         frames = pipeline.wait_for_frames()
-
+        
+        
         #RGB
         RGB_frame = frames.get_color_frame()
         RGB_image = np.asanyarray(RGB_frame.get_data())
@@ -166,11 +167,11 @@ try:
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.08), cv2.COLORMAP_JET)
 
         # 表示
-        images = np.hstack((RGB_image, depth_colormap))
-        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', images)
-        cv2.rectangle(RGB_image, (0, 320), (1280, 400), (0, 255, 0), 2)
+        #images = np.hstack((RGB_image, depth_colormap))
+        #cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
+        cv2.rectangle(RGB_image, (0, 600), (1280, 680), (0, 255, 0), 2)
         cv2.rectangle(RGB_image, (600, 0), (680, 720), (0, 255, 0), 2)
+        cv2.imshow('RealSense', RGB_image)
         
         #ret,frame2 = cap.read()
         #cv2.imshow('frame',frame2)
@@ -181,9 +182,11 @@ try:
         
 
         k=cv2.waitKey(1)
+        
         if k==ord('q'):#qで終了
             cv2.destroyAllWindows()
             GPIO.cleanup()
+            pipeline.stop()
             break
         if k==ord('s'):#sを押すとスタート
             ball_1 = True
@@ -200,23 +203,23 @@ try:
                     #ball_2 = True
                 print("未検出")
                 pass
-            elif center_ball_1_x < 640:                    
-                #left_rotation() #左回転
+            elif center_ball_1_x < 600:                    
+                left_rotation() #左回転
                 print('left')
-            elif center_ball_1_x > 640:                    
-                #right_rotation() #右回転
+            elif center_ball_1_x > 680:                    
+                right_rotation() #右回転
                 print('right')
             elif 600 <= center_ball_1_x <= 680:
                 if center_ball_1_y == None:
                     #ボール未検出
                     pass
-                elif center_ball_1_y < 360:
-                    #down() #後転
+                elif center_ball_1_y > 680:
+                    down() #後転
                     print('down')
-                elif center_ball_1_y > 360:                        
-                    #move() #正転
+                elif center_ball_1_y < 600:                        
+                    move() #正転
                     print('move')
-                elif 320 <= center_ball_1_y <= 400:
+                elif 600 <= center_ball_1_y <= 680:
                     #範囲に入ったら停止
                     print('stop')
                     ball_1 = False
@@ -232,13 +235,14 @@ try:
             print(dist_depth)
             print("打球")
 
-            if k==ord('d'):
-                hole = False
-                ball_1 = True
+             #if k==ord('d'):
+            hole = False
+            ball_1 = True
 
             
               
-              
-finally:
+except KeyboardInterrupt:
     # ストリーミング停止
     pipeline.stop()
+    cv2.destroyAllWindows()
+    GPIO.cleanup()
