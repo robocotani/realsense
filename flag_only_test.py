@@ -31,34 +31,34 @@ def distance(center_x,center_y):
     return dist_mean
 
 
-def left_rotation():
+def right_rotation():
     #左回転(左が後転、右が正転)
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    time.sleep(0.5)
+    time.sleep(0.05)
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
 
 
-def right_rotation():
+def left_rotation():
     #右回転(左が正転、右が後転)
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.5)
+    time.sleep(0.05)
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
 
 
 def move():
@@ -73,7 +73,7 @@ def move():
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
     
 
 def down():
@@ -88,7 +88,7 @@ def down():
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.01)
+    time.sleep(0.1)
     
 
 
@@ -164,11 +164,11 @@ try:
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.08), cv2.COLORMAP_JET)
 
         # 表示
-        images = np.hstack((RGB_image, depth_colormap))
-        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', images)
-        cv2.rectangle(RGB_image, (0, 320), (1280, 400), (0, 255, 0), 2)
-        cv2.rectangle(RGB_image, (600, 0), (680, 720), (0, 255, 0), 2)
+        #images = np.hstack((RGB_image, depth_colormap))
+        #cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
+        cv2.rectangle(RGB_image, (0, 330), (1280, 390), (0, 255, 0), 2)
+        cv2.rectangle(RGB_image, (610, 0), (670, 720), (0, 255, 0), 2)
+        cv2.imshow('RealSense', RGB_image)
         
         #ret,frame2 = cap.read()
         #cv2.imshow('frame',frame2)
@@ -179,31 +179,45 @@ try:
         
 
         k=cv2.waitKey(1)
-        if k==ord('q'):#qで終了
+        if k==ord('q'):#qで終
             cv2.destroyAllWindows()
             GPIO.cleanup()
+            pipeline.stop()
             break
         if k==ord('s'):#sを押すとスタート
-            ball_1 = True
+            flag = True
             
             #dist = depth_frame.get_distance(center_x, center_y)
             #print(dist)
             
 
         if flag == True:
-            center_flag_x,center_flag_y = M_flag.flag_detect(img1)
+            center_flag_x,center_flag_y,mask = M_flag.flag_detect(img1)
+           
+            
+                
 
             if center_flag_x == None:
                 #フラッグ未検出
+                print("未検出")
                 pass
-            elif center_flag_x < 640:
+            elif center_flag_x < 620:
                 left_rotation() #左回転
-            elif center_flag_x > 640:
+                cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
+                cv2.imshow('mask',mask)
+                print('left')
+                time.sleep(1)
+            elif center_flag_x > 660:
                 right_rotation() #右回転
-            elif 600 <= center_flag_x <= 680:
+                cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
+                cv2.imshow('mask',mask)
+                print('right')
+                time.sleep(1)
+            elif 620 <= center_flag_x <= 660:
                 #停止
+                print('stop')
                 flag = False
-                cont = True
+                hole = True
             else:
                 pass
           
@@ -222,6 +236,8 @@ try:
             
               
               
-finally:
+except KeyboardInterrupt:
     # ストリーミング停止
     pipeline.stop()
+    cv2.destroyAllWindows()
+    GPIO.cleanup()
