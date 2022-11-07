@@ -12,21 +12,16 @@ def distance(center_x,center_y):
     #周囲の5点を取って平均
     #かけ離れている点は除外
     dist = []
-    dist1 = depth_frame.get_distance(center_x, center_y)
-    dist2 = depth_frame.get_distance(center_x + 5, center_y + 5)
-    dist3 = depth_frame.get_distance(center_x + 5, center_y - 5)
-    dist4 = depth_frame.get_distance(center_x - 5, center_y + 5)
-    dist5 = depth_frame.get_distance(center_x - 5, center_y - 5)
-    
-    dist.append(float(format(dist1,'.4f')))
-    dist.append(float(format(dist2,'.4f')))
-    dist.append(float(format(dist3,'.4f')))
-    dist.append(float(format(dist4,'.4f')))
-    dist.append(float(format(dist5,'.4f')))
+
+    for i in range(5):
+        for j in range(5):
+            dist1 = depth_frame.get_distance(center_x + i, center_y + j)
+            dist.append(float(format(dist1,'.4f')))
     
     #3.5m以上の点は除外して平均
-    
-    dist_mean = sum(dist)/len(dist)
+    dist_new = [i for i in dist if i < 3.5] 
+
+    dist_mean = sum(dist_new)/len(dist_new)
 
     return dist_mean
 
