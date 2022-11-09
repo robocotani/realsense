@@ -56,7 +56,7 @@ def flag_detect(img):
     
 
     if cnt == 0: #フラッグ未検出
-        return None,None
+        return None,None,None
     elif cnt == 1: #既に最大データのみ(ラベル数が1)
         center_x = int(center[0][0])
         center_y = int(center[0][1])
@@ -85,5 +85,5 @@ def flag_detect(img):
         cv2.circle(img,(center_x,center_y),2,(0,0,255),3)
         cv2.rectangle(img, (x,y), (x + w, y + h), (0, 255, 0), 2)
         
-    return center_x,center_y
+    return center_x,center_y,img
 
