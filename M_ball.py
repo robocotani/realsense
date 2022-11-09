@@ -45,13 +45,13 @@ def ball_detect(img):
             cnt = cnt + 1
 
     if cnt == 0: #ボール未検出
-        return None,None,None,None
+        return None,None,None,None,None
     elif cnt == 1: #既に最大データのみ(ラベル数が1)
         center_x = int(center[0][0])
         center_y = int(center[0][1])
         cv2.circle(img,(center_x,center_y),2,(0,0,255),3)
         #cv2.rectangle(img, (x[0] ,y[0]), (x[0] + w[0], y[0] + h[0]), (0, 255, 0), 2)
-        return x[0],y[0],center_x,center_y
+        return x[0],y[0],center_x,center_y,img
     else:
         #最大値を取得
         max_index = np.argmax(area)
@@ -76,7 +76,7 @@ def ball_detect(img):
         #cv2.rectangle(img, (x,y), (x + w, y + h), (0, 255, 0), 2)
         
     #左上のx座標、横幅、重心
-    return x,y,center_x,center_y
+    return x,y,center_x,center_y,img
 
 
 
