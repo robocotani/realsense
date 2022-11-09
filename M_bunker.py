@@ -38,26 +38,18 @@ def bunker_detect(img):
     center_y = []
     cnt = 0
     for i in range(l_data):
-        if 70 <= data[i, 4] <= 30000:
+        if 70 <= data[i, 4]:
             x.append(data[i, 0])
             y.append(data[i, 1])
             w.append(data[i, 2])
             h.append(data[i, 3])
             area.append(data[i, 4])
-            center_x.append(center_data[i][0])
-            center_y.append(center_data[i][1])
+            center_x.append(int(center_data[i][0]))
+            center_y.append(int(center_data[i][1]))
             cnt = cnt + 1
 
-    
-
     if cnt == 0: #バンカー未検出
-        return None,None,None,None,None,None
-    else: 
-        for i in range(cnt):
-            center1_x = int(center_x[i])
-            center1_y = int(center_y[i])
-            cv2.circle(img,(center1_x,center1_y),2,(0,0,255),3)
-            cv2.rectangle(img, (x[i] ,y[i]), (x[i] + w[i], y[i] + h[i]), (0, 255, 0), 2)
-
-    return x,y,w,h,center_x,center_y
+        return None,None,None,None,None
+        
+    return x,y,w,h,cnt
 
