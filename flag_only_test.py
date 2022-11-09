@@ -19,8 +19,9 @@ def distance(center_x,center_y):
             dist.append(float(format(dist1,'.4f')))
     
     #3.5m以上の点は除外して平均
-    dist_new = [i for i in dist if i < 3.5] 
+    dist_new = [i for i in dist if 0.1 < i < 3.5] 
 
+    #ゼロ除算の対策
     dist_mean = sum(dist_new)/len(dist_new)
 
     return dist_mean
@@ -122,55 +123,49 @@ flag = False #フラッグ検出
 depth = False #距離計測
 hole = False #打球
 
-
-#カメラ設定----------------------------
-#cap = cv2.VideoCapture(0)
-#cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-#cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-
-#cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
-#cv2.setWindowProperty('frame', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-#--------------------------------------
-
+#画面サイズ設定
+size_w = 1280
+size_h = 720
 
 
 # ストリーム(Color/Depth)の設定
 config = rs.config()
 
-config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
-config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+config.enable_stream(rs.stream.color, size_w, size_h, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.depth, size_w, size_h, rs.format.z16, 30)
 
 # ストリーミング開始
 pipeline = rs.pipeline()
 profile = pipeline.start(config)
+
+# Alignオブジェクト生成
+align_to = rs.stream.color
+align = rs.align(align_to)
 
 try:
     while True:
         # フレーム待ち
         frames = pipeline.wait_for_frames()
 
-        #RGB
-        RGB_frame = frames.get_color_frame()
-        RGB_image = np.asanyarray(RGB_frame.get_data())
+        #座標の補正
+        aligned_frames = align.process(frames)
+        color_frame = aligned_frames.get_color_frame()
+        depth_frame = aligned_frames.get_depth_frame()
+        if not depth_frame or not color_frame:
+            continue
 
-        #depyh
-        depth_frame = frames.get_depth_frame()
+        RGB_image = np.asanyarray(color_frame.get_data())
         depth_image = np.asanyarray(depth_frame.get_data())
+
+         #depth imageをカラーマップに変換
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.08), cv2.COLORMAP_JET)
 
         # 表示
-        #images = np.hstack((RGB_image, depth_colormap))
-        #cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.rectangle(RGB_image, (0, 330), (1280, 390), (0, 255, 0), 2)
-        cv2.rectangle(RGB_image, (610, 0), (670, 720), (0, 255, 0), 2)
+        cv2.rectangle(RGB_image, ((size_w / 2) - 20, 0), ((size_w / 2) + 20, size_w), (0, 255, 0), 2)
         cv2.imshow('RealSense', RGB_image)
-        
-        #ret,frame2 = cap.read()
-        #cv2.imshow('frame',frame2)
 
         img1 = RGB_image
-        #img2 = frame2
-        
+       
         
 
         k=cv2.waitKey(1)
@@ -182,33 +177,27 @@ try:
         if k==ord('s'):#sを押すとスタート
             flag = True
             
-            #dist = depth_frame.get_distance(center_x, center_y)
-            #print(dist)
-            
 
         if flag == True:
             center_flag_x,center_flag_y,mask = M_flag.flag_detect(img1)
-           
-            
-                
 
             if center_flag_x == None:
                 #フラッグ未検出
                 print("未検出")
                 pass
-            elif center_flag_x < 620:
+            elif center_flag_x < (size_w / 2) - 20:
                 left_rotation() #左回転
                 cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
                 cv2.imshow('mask',mask)
                 print('left')
                 time.sleep(1)
-            elif center_flag_x > 660:
+            elif center_flag_x > (size_w / 2) + 20:
                 right_rotation() #右回転
                 cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
                 cv2.imshow('mask',mask)
                 print('right')
                 time.sleep(1)
-            elif 620 <= center_flag_x <= 660:
+            elif (size_w / 2) - 20 <= center_flag_x <= (size_w / 2) + 20:
                 #停止
                 print('stop')
                 flag = False
@@ -224,9 +213,9 @@ try:
             print(dist_depth)
             print("打球")
 
-            if k==ord('d'):
-                hole = False
-                flag = True
+            
+            hole = False
+            flag = True
 
             
               
