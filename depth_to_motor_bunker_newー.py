@@ -74,7 +74,6 @@ def stop():
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    
 
 
 #GPIO初期設定------------
@@ -173,32 +172,16 @@ try:
             elif bunker_cnt == 1:
                 bunker_MAX = bunker_x[0] + bunker_w[0]
                 bunker_min = bunker_y[0]
+                bunker = True
+                ball_1 = False
             elif bunker_cnt == 2:
                 #2つバンカーを検出したとき、下にある方を見る
                 bunker_y_index = bunker_y.index(max(bunker_y))
                 bunker_MAX = bunker_x[bunker_y_index] + bunker_w[bunker_y_index]
                 bunker_min = bunker_y[bunker_y_index]
+                bunker = True
+                ball_1 = False
             else:
-                pass
-
-            if bunker_min == 0 & bunker_MAX == int(size_w * 0.7):#画面の70％
-                #画面いっぱいにバンカーがある
-                left_rotation(20)
-                pass
-            elif bunker_min == 0 & bunker_MAX < int(size_w * 0.7):
-                #画面の左側
-                right_rotation(20) 
-                time.sleep(0.05)
-                move(30)
-                time.sleep(0.1)
-                stop()
-                pass
-            elif 0 < bunker_min & bunker_MAX == size_w:
-                #画面の右側
-                left_rotation(20)
-                time.sleep(0.05)
-                move(30)
-                time.sleep(0.1)
                 pass
 
 
@@ -240,6 +223,41 @@ try:
                 cap.read()
 
 #---------------------------------------------------------
+
+#バンカー回避----------------------------------------------
+        if bunker == True:
+            if bunker_min == 0 & bunker_MAX == int(size_w * 0.7):#画面の70％
+                #画面いっぱいにバンカーがある
+                left_rotation(20)
+                time.sleep(0.05)
+                move(30)
+                time.sleep(0.1)
+                stop()
+                ball_1 = True
+                bunker = False
+            elif bunker_min == 0 & bunker_MAX < int(size_w * 0.7):
+                #画面の左側
+                right_rotation(20) 
+                time.sleep(0.05)
+                move(30)
+                time.sleep(0.1)
+                stop()
+                ball_1 = True
+                bunker = False
+            elif 0 < bunker_min & bunker_MAX == size_w:
+                #画面の右側
+                left_rotation(20)
+                time.sleep(0.05)
+                move(30)
+                time.sleep(0.1)
+                ball_1 = True
+                bunker = False
+            else:
+                pass
+#--------------------------------------------------------
+
+
+
 
 #下カメラでボール未検出------------------------------------
         if ball_2 == True:
