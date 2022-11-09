@@ -20,7 +20,7 @@ def distance(center_x,center_y):
             dist1 = depth_frame.get_distance(center_x + i, center_y + j)
             dist.append(float(format(dist1,'.4f')))
     
-    #3.5m以上の点は除外して平均
+    #0.1m以下、3.5m以上の点は除外して平均
     dist_new = [i for i in dist if 0.1 < i < 3.5] 
 
     try:
