@@ -27,64 +27,46 @@ def distance(center_x,center_y):
     return dist_mean
 
 
-def right_rotation():
+def right_rotation(duty):
     #左回転(左が後転、右が正転)
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    time.sleep(0.05)
-    #停止
-    p1.ChangeDutyCycle(0)
-    p2.ChangeDutyCycle(0)
-    p3.ChangeDutyCycle(0)
-    p4.ChangeDutyCycle(0)
-    time.sleep(0.1)
+    
 
 
-def left_rotation():
+def left_rotation(duty):
     #右回転(左が正転、右が後転)
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.05)
-    #停止
-    p1.ChangeDutyCycle(0)
-    p2.ChangeDutyCycle(0)
-    p3.ChangeDutyCycle(0)
-    p4.ChangeDutyCycle(0)
-    time.sleep(0.1)
 
 
-def move():
+def move(duty):
     #正転
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    time.sleep(0.5)
-    #停止
-    p1.ChangeDutyCycle(0)
-    p2.ChangeDutyCycle(0)
-    p3.ChangeDutyCycle(0)
-    p4.ChangeDutyCycle(0)
-    time.sleep(0.1)
-    
 
-def down():
+
+def down(duty):
     #後転
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.5)
+    
+
+def stop():
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.1)
+    
     
 
 
