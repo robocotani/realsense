@@ -6,25 +6,6 @@ import time
 import M_ball
 
 
-#距離計測用関数
-def distance(center_x,center_y):
-    #ボールとの距離は角度を補正
-    #周囲の5点を取って平均
-    #かけ離れている点は除外
-    dist = []
-    for i in range(5):
-        for j in range(5):
-            dist1 = depth_frame.get_distance(center_x + i, center_y + j)
-            dist.append(float(format(dist1,'.4f')))
-    
-    
-    #3.5m以上の点は除外して平均
-    dist_new = [i for i in dist if 0.1 < i < 3.5] 
-
-    dist_mean = sum(dist_new)/len(dist_new)
-
-    return dist_mean
-
 
 def right_rotation(duty):
     #右回転(左が正転、右が後転)
@@ -32,13 +13,7 @@ def right_rotation(duty):
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    # time.sleep(0.05)
-    # #停止
-    # p1.ChangeDutyCycle(0)
-    # p2.ChangeDutyCycle(0)
-    # p3.ChangeDutyCycle(0)
-    # p4.ChangeDutyCycle(0)
-    # time.sleep(0.1)
+    
 
 
 def left_rotation(duty):
@@ -47,43 +22,32 @@ def left_rotation(duty):
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    # time.sleep(0.05)
-    # #停止
-    # p1.ChangeDutyCycle(0)
-    # p2.ChangeDutyCycle(0)
-    # p3.ChangeDutyCycle(0)
-    # p4.ChangeDutyCycle(0)
-    # time.sleep(0.1)
+
 
 
 def move(duty):
-    #
+    #前進
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(duty)
-    # time.sleep(0.1)
-    # #停止
-    # p1.ChangeDutyCycle(0)
-    # p2.ChangeDutyCycle(0)
-    # p3.ChangeDutyCycle(0)
-    # p4.ChangeDutyCycle(0)
-    # time.sleep(0.1)
+    
     
 
-def down():
+def down(duty):
     #
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(duty)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.1)
+    
+
+def stop():
     #停止
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(0)
     p3.ChangeDutyCycle(0)
     p4.ChangeDutyCycle(0)
-    time.sleep(0.1)
     
 
 
@@ -118,8 +82,8 @@ p4.start(0)
 #------------------------
 
 #フラグの設定
-ball_1 = False #ボール位置へ移動 デプスカメラ
-ball_2 = True #下カメラ
+ball_1 = True #下カメラ
+ball_2 = False #ボール位置へ移動 デプスカメラ
 #cont = False #ボール微調整
 depth = False #距離計測
 hole = False #打球
@@ -197,112 +161,100 @@ try:
             pipeline.stop()
             break
         if k==ord('s'):#sを押すとスタート
-            ball_2 = True
-            
-            #dist = depth_frame.get_distance(center_x, center_y)
-            #print(dist)
-            
+            ball_1 = True
+
 
         if ball_1 == True:
-            frames = pipeline.wait_for_frames()
-            aligned_frames = align.process(frames)
-            color_frame = aligned_frames.get_color_frame()   
-            cv2.rectangle(RGB_image, (0, int(size_h - 80)), (size_w, int(size_h - 40)), (0, 255, 0), 2)
-            cv2.rectangle(RGB_image, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
-            cv2.imshow('RealSense', RGB_image)     
-            img1 = RGB_image
+            ret,frame = cap.read()
 
+            upper_left_1_x,upper_left_1_y,center_ball_1_x,center_ball_1_y,frame = M_ball.ball_detect(frame)
 
-            upper_leht_1_x,upper_leht_1_y,center_ball_1_x,center_ball_1_y,img1 = M_ball.ball_detect(img1)
-            #cv2.imshow('RealSense', img1)
+            cv2.rectangle(frame, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
+            cv2.rectangle(frame, (0, 470), (size_w, 510), (0, 255, 0), 2)
+            cv2.imshow('frame', frame)
 
             if center_ball_1_x == None:
                 #ボール未検出
-                #ball_1 = False
-                #ball_2 = True
-                right_rotation()
+                #right_rotation()
+                ball_2 = True
+                ball_1 = False
                 print("未検出")
                 pass
-            elif center_ball_1_x < (size_w / 2) - 20:                    
-                left_rotation() #左回転
+            elif center_ball_1_x < (size_w / 2) -20:                    
+                left_rotation(10) #左回転
                 print('left')
-            elif center_ball_1_x > (size_w / 2) + 20:                    
-                right_rotation() #右回転
+            elif center_ball_1_x > (size_w / 2) +20:                    
+                right_rotation(10) #右回転
                 print('right')
             elif (size_w / 2) - 20 <= center_ball_1_x <= (size_w / 2) + 20:
-                if center_ball_1_y == None:
-                    ball_1 = False
-                    ball_2 = True
-                    print("未検出")
-                    #ボール未検出
+                if upper_left_1_y == None:
+                    #ボール未検出,後退
+                    down(30)
                     pass
-                elif center_ball_1_y > size_h - 40:
-                    down() #後転
+                elif upper_left_1_y > 490:
+                    down(30) #後転
                     print('down')
-                elif center_ball_1_y < size_h - 80:                        
-                    move() #正転
+                elif upper_left_1_y < 490:                        
+                    move(30) #正転
                     print('move')
-                elif size_h - 80 <= center_ball_1_y <= size_h - 40:
+                elif 470 <= upper_left_1_y <= 510:
                     #範囲に入ったら停止
                     print('stop')
                     ball_1 = False
-                    ball_2 = True
-                else:
-                    pass
-
-
-        if ball_2 == True:
-            ret,frame2 = cap.read()
-
-            img2 = frame2
-
-            upper_left_2_x,upper_left_2_y,center_ball_2_x,center_ball_2_y,img2 = M_ball.ball_detect(img2)
-
-            cv2.rectangle(frame2, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
-            cv2.rectangle(frame2, (0, 470), (size_w, 510), (0, 255, 0), 2)
-            cv2.imshow('frame', img2)
-
-            print(center_ball_2_x)
-
-            if center_ball_2_x == None:
-                #ボール未検出
-                #right_rotation()
-                ball_1 = True
-                ball_2 = False
-                print("未検出")
-                pass
-            elif center_ball_2_x < (size_w / 2) -20:                    
-                left_rotation(10) #左回転
-                print('left2')
-            elif center_ball_2_x > (size_w / 2) +20:                    
-                right_rotation(10) #右回転
-                print('right2')
-            elif (size_w / 2) - 20 <= center_ball_2_x <= (size_w / 2) + 20:
-                if upper_left_2_y == None:
-                    #ボール未検出,後退
-                    down()
-                    pass
-                elif upper_left_2_y > 490:
-                    down() #後転
-                    print('down2')
-                elif upper_left_2_y < 490:                        
-                    move(30) #正転
-                    print('move2')
-                elif 470 <= upper_left_2_y <= 510:
-                    #範囲に入ったら停止
-                    print('stop2')
-                    ball_1 = False
                     ball_2 = False
                     hole = True
-                    p1.ChangeDutyCycle(0)
-                    p2.ChangeDutyCycle(0)
-                    p3.ChangeDutyCycle(0)
-                    p4.ChangeDutyCycle(0)
+                    stop()
                 else:
                     pass
 
             for i in range(5):
                 cap.read()
+
+
+        if ball_2 == True:
+            frames = pipeline.wait_for_frames()
+            aligned_frames = align.process(frames)
+            color_frame = aligned_frames.get_color_frame()   
+                 
+            upper_left_2_x,upper_left_2_y,center_ball_2_x,center_ball_2_y,color_frame = M_ball.ball_detect(color_frame)
+
+            cv2.rectangle(color_frame, (0, int(size_h - 80)), (size_w, int(size_h - 40)), (0, 255, 0), 2)
+            cv2.rectangle(color_frame, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
+            cv2.imshow('RealSense', color_frame)
+
+            if center_ball_2_x == None:
+                #ボール未検出
+                #ball_1 = False
+                #ball_2 = True
+                left_rotation()
+                print("未検出2")
+                pass
+            elif center_ball_2_x < (size_w / 2) - 20:                    
+                left_rotation() #左回転
+                print('left2')
+            elif center_ball_2_x > (size_w / 2) + 20:                    
+                right_rotation() #右回転
+                print('right2')
+            elif (size_w / 2) - 20 <= center_ball_2_x <= (size_w / 2) + 20:
+                if center_ball_2_y == None:
+                    ball_1 = False
+                    ball_2 = True
+                    print("未検出2")
+                    #ボール未検出
+                    pass
+                elif center_ball_2_y > size_h - 40:
+                    down() #後転
+                    print('down2')
+                elif center_ball_2_y < size_h - 80:                        
+                    move() #正転
+                    print('move2')
+                elif size_h - 80 <= center_ball_2_y <= size_h - 40:
+                    #範囲に入ったら停止
+                    print('stop2')
+                    ball_2 = False
+                    ball_1 = True
+                else:
+                    pass
             
             
         if hole == True:
