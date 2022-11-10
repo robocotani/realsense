@@ -45,7 +45,7 @@ def ball_detect(img):
             cnt = cnt + 1
 
     if cnt == 0: #ボール未検出
-        return None,None,None,None,None
+        return None,None,None,None,img
     elif cnt == 1: #既に最大データのみ(ラベル数が1)
         center_x = int(center[0][0])
         center_y = int(center[0][1])
