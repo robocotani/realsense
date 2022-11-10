@@ -9,8 +9,8 @@ def bunker_detect(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # バンカーのHSVの値域1
-    hsv_min = np.array([15,0,0])
-    hsv_max = np.array([30,255,130])
+    hsv_min = np.array([0,45,70])
+    hsv_max = np.array([20,140,180])
     mask = cv2.inRange(hsv, hsv_min, hsv_max)
 
     kernel = np.ones((2, 2), np.uint8)
@@ -49,7 +49,7 @@ def bunker_detect(img):
             cnt = cnt + 1
 
     if cnt == 0: #バンカー未検出
-        return None,None,None,None,None
+        return None,None,None,None,None,None
         
-    return x,y,w,h,cnt
+    return x,y,w,h,cnt,mask
 
