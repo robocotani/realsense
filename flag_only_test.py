@@ -145,9 +145,6 @@ try:
         # 表示
         cv2.rectangle(RGB_image, ((size_w / 2) - 20, 0), ((size_w / 2) + 20, size_w), (0, 255, 0), 2)
         cv2.imshow('RealSense', RGB_image)
-
-        img1 = RGB_image
-       
         
 
         k=cv2.waitKey(1)
@@ -161,22 +158,22 @@ try:
             
 
         if flag == True:
-            center_flag_x,center_flag_y,mask = M_flag.flag_detect(img1)
+            center_flag_x,center_flag_y,RGB_image = M_flag.flag_detect(RGB_image)
+            cv2.imshow('mask',RGB_image)
 
             if center_flag_x == None:
                 #フラッグ未検出
                 print("未検出")
+                right_rotation(20)
                 pass
             elif center_flag_x < (size_w / 2) - 20:
-                left_rotation() #左回転
+                left_rotation(10) #左回転
                 cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
-                cv2.imshow('mask',mask)
+                
                 print('left')
                 time.sleep(1)
             elif center_flag_x > (size_w / 2) + 20:
-                right_rotation() #右回転
-                cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
-                cv2.imshow('mask',mask)
+                right_rotation(10) #右回転
                 print('right')
                 time.sleep(1)
             elif (size_w / 2) - 20 <= center_flag_x <= (size_w / 2) + 20:
