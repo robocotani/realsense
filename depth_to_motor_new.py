@@ -79,10 +79,10 @@ def stop():
 #GPIO初期設定------------
 GPIO.setmode(GPIO.BCM)
 
-PIN1 = 33
-PIN2 = 31
-PIN3 = 29
-PIN4 = 27
+PIN1 = 13
+PIN2 = 6
+PIN3 = 5
+PIN4 = 0
     
 
 GPIO.setup(PIN1, GPIO.OUT)
