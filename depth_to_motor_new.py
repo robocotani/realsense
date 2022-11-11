@@ -32,7 +32,7 @@ def distance(center_x,center_y):
     return dist_mean
 
 
-def right_rotation(duty):
+def move(duty):
     #右回転(左が正転、右が後転)
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
@@ -41,7 +41,7 @@ def right_rotation(duty):
     
 
 
-def left_rotation(duty):
+def down(duty):
     #左回転(左が後転、右が正転)
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
@@ -50,7 +50,7 @@ def left_rotation(duty):
 
 
 
-def move(duty):
+def right_rotation(duty):
     #前進
     p1.ChangeDutyCycle(0)
     p2.ChangeDutyCycle(duty)
@@ -59,7 +59,7 @@ def move(duty):
     
     
 
-def down(duty):
+def left_rotation(duty):
     #
     p1.ChangeDutyCycle(duty)
     p2.ChangeDutyCycle(0)
@@ -79,8 +79,8 @@ def stop():
 #GPIO初期設定------------
 GPIO.setmode(GPIO.BCM)
 
-PIN1 = 13
-PIN2 = 6
+PIN1 = 6
+PIN2 = 13
 PIN3 = 5
 PIN4 = 0
     
@@ -107,8 +107,8 @@ p4.start(0)
 #フラグの設定
 ball_1 = True #下カメラ
 ball_2 = False #ボール位置へ移動 デプスカメラ
+flag = False
 cont = False #ボール微調整
-depth = False #距離計測
 hole = False #打球
 
 #画面サイズ設定
@@ -120,7 +120,7 @@ point = 490
 
 
 #カメラ設定----------------------------
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(6)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, size_w)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, size_h)
 #--------------------------------------
@@ -156,44 +156,63 @@ try:
 
 #ボール検出、追尾------------------------------------
         if ball_1 == True:
-            ret,frame = cap.read()
+            ret,frame_ball_1 = cap.read()
 
-            upper_left_1_x,upper_left_1_y,center_ball_1_x,center_ball_1_y,frame = M_ball.ball_detect(frame)
+            upper_left_1_x,upper_left_1_y,center_ball_1_x,center_ball_1_y,frame_ball_1 = M_ball.ball_detect(frame_ball_1)
 
-            cv2.rectangle(frame, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
-            cv2.rectangle(frame, (0, 470), (size_w, 510), (0, 255, 0), 2)
-            cv2.imshow('frame', frame)
+            cv2.rectangle(frame_ball_1, (int((size_w / 2) - 100), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
+            cv2.rectangle(frame_ball_1, (0, 470), (size_w, 510), (0, 255, 0), 2)
+            cv2.imshow('frame', frame_ball_1)
 
             if center_ball_1_x == None:
                 #ボール未検出
                 ball_2 = True
                 ball_1 = False
                 print("未検出")
-                pass
-            elif center_ball_1_x < (size_w / 2) - 20:                    
-                left_rotation(10) #左回転
-                print('left')
-            elif center_ball_1_x > (size_w / 2) + 20:                    
-                right_rotation(10) #右回転
-                print('right')
-            elif (size_w / 2) - 20 <= center_ball_1_x <= (size_w / 2) + 20:
+                cv2.destroyWindow('frame')            
+            elif center_ball_1_x < (size_w / 2) -20:                    
+                if center_ball_1_x < (size_w / 2) -50:
+                    #近くなったらゆっくり
+                    left_rotation(20)
+                    print('left')
+                else:
+                    left_rotation(10)
+                    print('left slow')
+            elif center_ball_1_x > (size_w / 2) +20:                    
+                if center_ball_1_x > (size_w / 2) -50:
+                    #近くなったらゆっくり
+                    right_rotation(20)
+                    print('right')
+                else:
+                    right_rotation(10) 
+                    print('right slow')
+            elif (size_w / 2) - 100 <= center_ball_1_x <= (size_w / 2) + 20:
                 if upper_left_1_y == None:
                     #ボール未検出,後退
                     down(30)
                     pass
-                elif upper_left_1_y > point:
-                    down(30) #後転
-                    print('down')
-                elif upper_left_1_y < point:                        
-                    move(30) #正転
-                    print('move')
-                elif point - 20 <= upper_left_1_y <= point + 20:
+                elif upper_left_1_y > 490:
+                    if upper_left_1_y < 520:
+                        down(10)
+                        print('down_slow')
+                    else:
+                        down(30) #後転
+                        print('down')
+                elif upper_left_1_y < 490:                        
+                    if upper_left_1_y > 430 :                      
+                        move(10) #正転
+                        print('move_slow')
+                    else:
+                        move(30)
+                        print('move')
+                elif 470 <= upper_left_1_y <= 510:
                     #範囲に入ったら停止
                     print('stop')
-                    ball_1 = False
-                    ball_2 = False
-                    hole = True
                     stop()
+                    ball_1 = False
+                    flag = True
+                    cv2.destroyWindow('frame')
+                    time.sleep(0.1)
                 else:
                     pass
             
@@ -218,44 +237,32 @@ try:
 
             if center_ball_2_x == None:
                 #ボール未検出
-                left_rotation(10)
+                left_rotation(50)
                 print("未検出2")
-                pass
             elif center_ball_2_x < (size_w / 2) - 20:                    
-                left_rotation(10) #左回転
+                left_rotation(30) #左回転
                 print('left2')
             elif center_ball_2_x > (size_w / 2) + 20:                    
-                right_rotation(10) #右回転
+                right_rotation(30) #右回転
                 print('right2')
-            elif (size_w / 2) - 20 <= center_ball_2_x <= (size_w / 2) + 20:
-                if center_ball_2_y == None:
-                    left_rotation()
-                    print("未検出2")
-                    #ボール未検出
-                    pass
-                elif center_ball_2_y > size_h - 40:
-                    down(30) #後転
-                    print('down2')
-                elif center_ball_2_y < size_h - 80:                        
-                    move(30) #正転
-                    print('move2')
-                elif size_h - 80 <= center_ball_2_y <= size_h - 40:
-                    #範囲に入ったら停止
-                    print('stop2')
-                    ball_2 = False
-                    ball_1 = True
-                    stop()
-                else:
-                    pass
+            elif (size_w / 2) - 40 <= center_ball_2_x <= (size_w / 2) + 40:
+                print('stop2')
+                ball_2 = False
+                ball_1 = True
+                stop()
+                cv2.destroyWindow('Realsense')
+                time.sleep(0.1)
+            else:
+                pass
 #--------------------------------------------------------------------
             
 #フラッグ検出-------------------------------------------------------
         if flag == True:
 
-            frames = pipeline.wait_for_frames()
+            frames_flag = pipeline.wait_for_frames()
 
             #座標の補正
-            aligned_frames = align.process(frames)
+            aligned_frames = align.process(frames_flag)
             color_frame = aligned_frames.get_color_frame()
             depth_frame = aligned_frames.get_depth_frame()
             if not depth_frame or not color_frame:
@@ -264,28 +271,46 @@ try:
             RGB_image = np.asanyarray(color_frame.get_data())
             depth_image = np.asanyarray(depth_frame.get_data())
 
-            center_flag_x,center_flag_y,RGB_image = M_flag.flag_detect(RGB_image)
+            flag_x, center_flag_x, center_flag_y, flag_w, RGB_image = M_flag.flag_detect(RGB_image)
 
             # 表示
-            cv2.rectangle(RGB_image, ((size_w / 2) - 20, 0), ((size_w / 2) + 20, size_w), (0, 255, 0), 2)
+            cv2.rectangle(RGB_image, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_w), (0, 255, 0), 2)
             cv2.imshow('RealSense', RGB_image)
+            
 
             if center_flag_x == None:
                 #フラッグ未検出
+                right_rotation(40)
                 print("未検出")
-                pass
             elif center_flag_x < (size_w / 2) - 20:
-                left_rotation(10) #左回転
-                print('left')
+                if center_flag_x < (size_w / 2) -50:
+                    #近くなったらゆっくり
+                    left_rotation(20)
+                    print('left flag')
+                else:
+                    left_rotation(10)
+                    print('left flag slow')
             elif center_flag_x > (size_w / 2) + 20:
-                right_rotation(10) #右回転
-                cv2.circle(RGB_image,(center_flag_x,center_flag_y),2,(0,255,0),3)
-                print('right')
+                if center_ball_1_x > (size_w / 2) -50:
+                    #近くなったらゆっくり
+                    right_rotation(20)
+                    print('right')
+                else:
+                    right_rotation(10) 
+                    print('right slow')
             elif (size_w / 2) - 20 <= center_flag_x <= (size_w / 2) + 20:
                 #停止
-                print('stop')
+                print('stop flag')
+
+                dist_depth = distance(center_flag_x,center_flag_y)
+                if dist_depth == None:
+                    #ゼロ除算に引っかかったらもう一回
+                    dist_depth = distance(center_flag_x,center_flag_y)
+
                 flag = False
                 cont = True
+                cv2.destroyWindow('Realsense')
+                time.sleep(0.1)
             else:
                 pass
 #------------------------------------------------------------------
@@ -294,31 +319,33 @@ try:
 #打球位置微調整--------------------------------------------------
         if cont == True:
             #下カメラでボール検出
-            ret,frame = cap.read()
+            ret,frame_cont = cap.read()
 
-            upper_left_1_x,upper_left_1_y,center_ball_1_x,center_ball_1_y,frame = M_ball.ball_detect(frame)
+            upper_cont_x,upper_cont_y,center_cont_x,center_cont_y,frame_cont = M_ball.ball_detect(frame_cont)
 
-            cv2.rectangle(frame, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
-            cv2.rectangle(frame, (0, 470), (size_w, 510), (0, 255, 0), 2)
-            cv2.imshow('frame', frame)
-
-            #以下のcenterは下カメラ
-            center_cont_x,center_cont_y,frame = M_ball.ball_detect(frame)
+            cv2.rectangle(frame_cont, (int((size_w / 2) - 20), 0), (int((size_w / 2) + 20), size_h), (0, 255, 0), 2)
+            cv2.rectangle(frame_cont, (0, 470), (size_w, 510), (0, 255, 0), 2)
+            cv2.imshow('frame_cont', frame_cont)
 
             #回転が必要かは検討
-            if center_cont_x == None:
+            if center_cont_y == None:
                 #ボール未検出
                 down(10)
                 pass
-            elif center_cont_x < point:
+            elif center_cont_y > point:
                 down(10) #後転
-            elif center_cont_x > point:
+                print('down_cont')
+            elif center_cont_y < point:
                 move(10) #正転
-            elif point - 20 <= center_cont_x <= point + 20:
+                print('move_cont')
+            elif point - 20 <= center_cont_y <= point + 20:
                 #停止
                 stop()
+                print('stop_cont')
                 cont = False
                 hole = True
+                cv2.destroyWindow('frame_cont')
+                time.sleep(0.1)
             else:
                 pass
 
@@ -330,13 +357,12 @@ try:
 #打球---------------------------------------------------------
         if hole == True:
 	
+            print(dist_depth)
             #どのタイミングでフラッグの距離計測するか
-            dist_depth = distance(center_flag_x,center_flag_y)
-            if dist_depth == None:
-                #ゼロ除算に引っかかったらもう一回
-                dist_depth = distance(center_flag_x,center_flag_y)
-
+           
             print("打球")
+
+            time.sleep(7)
 
             hole = False
             ball_1 = True
@@ -349,3 +375,4 @@ except KeyboardInterrupt:
     pipeline.stop()
     cv2.destroyAllWindows()
     GPIO.cleanup()
+    cap.release()
